@@ -1,0 +1,26 @@
+- name: change port
+  hosts: all
+  become: true
+  vars_files:
+    vars.yml
+  tasks:
+    - name: change ports
+      lineinfile:
+        dest: /etc/httpd/conf/httpd.conf
+        regexp: '^Listen\s+[0-9]'
+        line: Listen {{ webport }}
+      notify:
+        - httpd restart
+
+    - name: index.html에 내용 추가하기
+      blockinfile:
+        dest: /var/www/html/index.html
+        block: |
+          [test page]
+          - hi
+          - hello
+  handlers:
+    - name: httpd restart
+      service:
+        name: httpd
+        state: restarted
